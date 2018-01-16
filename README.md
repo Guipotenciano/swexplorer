@@ -1,4 +1,10 @@
-# swexplorer
+# Semantic Web Explorer
+
+SWExplorer is a semantic web browser developed using Clojure/ClojureScript.
+
+In development
+
+###################
 
 A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.
 
