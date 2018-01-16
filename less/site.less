@@ -1,0 +1,71 @@
+@import "material-color";
+
+body {
+    color: red;
+    margin: 0px;
+    background-color: @clr-grey-800;
+}
+
+#toolbar {
+    position: fixed;
+    top: 0px;
+    width: 100%;
+
+    #ipt-search{
+      margin: 0px 10px;
+    }
+
+    #search{
+      margin: 0px 20px;
+    }
+
+}
+
+#properties-table{
+  padding-top: 56px;
+
+  .head {
+    background-color: @clr-blue-800;
+    color: @clr-green-400;
+    font-size: 1.2rem;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .body {
+    color: @clr-green-500;
+    .hidden{
+      visibility: hidden;
+    }
+    .line {
+      padding: 10px;
+
+      &.first {
+          margin-top: 10px;
+      }
+      &.predicate {
+        background-color: @clr-grey-600;
+        &.first{
+          background-color: @clr-grey-700;
+        }
+      }
+
+      &.object {
+        background-color: @clr-blue-grey-600;
+        &.first{
+          background-color: @clr-blue-grey-700;
+        }
+      }
+      & > img {
+        max-height: 400px;
+        max-height: 400px;
+      }
+      & > .link:hover{
+        cursor: pointer;
+        color: @clr-blue-400;
+      }
+    }
+
+
+  }
+}

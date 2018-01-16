@@ -1,0 +1,57 @@
+body {
+  color: red;
+  margin: 0px;
+  background-color: #424242;
+}
+#toolbar {
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+#toolbar #ipt-search {
+  margin: 0px 10px;
+}
+#toolbar #search {
+  margin: 0px 20px;
+}
+#properties-table {
+  padding-top: 56px;
+}
+#properties-table .head {
+  background-color: #1565c0;
+  color: #66bb6a;
+  font-size: 1.2rem;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+#properties-table .body {
+  color: #4caf50;
+}
+#properties-table .body .hidden {
+  visibility: hidden;
+}
+#properties-table .body .line {
+  padding: 10px;
+}
+#properties-table .body .line.first {
+  margin-top: 10px;
+}
+#properties-table .body .line.predicate {
+  background-color: #757575;
+}
+#properties-table .body .line.predicate.first {
+  background-color: #616161;
+}
+#properties-table .body .line.object {
+  background-color: #546e7a;
+}
+#properties-table .body .line.object.first {
+  background-color: #455a64;
+}
+#properties-table .body .line > img {
+  max-height: 400px;
+}
+#properties-table .body .line > .link:hover {
+  cursor: pointer;
+  color: #42a5f5;
+}
