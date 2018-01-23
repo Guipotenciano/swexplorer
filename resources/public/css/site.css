@@ -3,55 +3,68 @@ body {
   margin: 0px;
   background-color: #424242;
 }
-#toolbar {
+body #toolbar {
   position: fixed;
   top: 0px;
   width: 100%;
+  background-color: #fafafa;
 }
-#toolbar #ipt-search {
-  margin: 0px 10px;
+body #toolbar #ipt-search {
+  width: calc(100% - 45px);
+  font: 16px arial, sans-serif;
+  border: none;
+  line-height: 34px;
 }
-#toolbar #search {
-  margin: 0px 20px;
+body #toolbar #btn-search {
+  border: none;
+  background: none;
+  position: relative;
+  top: 5px;
+  float: right;
 }
-#properties-table {
-  padding-top: 56px;
+body #toolbar #btn-search:hover {
+  cursor: pointer;
 }
-#properties-table .head {
+body #properties-table {
+  padding-top: 70px;
+}
+body #properties-table .head {
   background-color: #1565c0;
   color: #66bb6a;
   font-size: 1.2rem;
   padding-top: 10px;
   padding-bottom: 10px;
 }
-#properties-table .body {
+body #properties-table .body {
   color: #4caf50;
 }
-#properties-table .body .hidden {
+body #properties-table .body .hidden {
   visibility: hidden;
 }
-#properties-table .body .line {
+body #properties-table .body .line {
   padding: 10px;
 }
-#properties-table .body .line.first {
+body #properties-table .body .line.first {
   margin-top: 10px;
 }
-#properties-table .body .line.predicate {
+body #properties-table .body .line.predicate {
   background-color: #757575;
 }
-#properties-table .body .line.predicate.first {
+body #properties-table .body .line.predicate.first {
   background-color: #616161;
 }
-#properties-table .body .line.object {
+body #properties-table .body .line.object {
   background-color: #546e7a;
 }
-#properties-table .body .line.object.first {
+body #properties-table .body .line.object.first {
   background-color: #455a64;
 }
-#properties-table .body .line > img {
+body #properties-table .body .line img {
   max-height: 400px;
+  max-width: 100%;
 }
-#properties-table .body .line > .link:hover {
+body #properties-table .body .line .link:hover {
   cursor: pointer;
   color: #42a5f5;
 }
+/* Components */

@@ -1,0 +1,77 @@
+<!-- Defines element markup -->
+<template>
+    <style>
+        .data-view{
+          max-height: 100px;
+          width: 100%;
+        }
+    </style>
+    <div class="data-view">
+    </div>
+</template>
+
+<script>
+(function(window, document, undefined) {
+
+    // Refers to the "importer", which is index.html
+    var thatDoc = document;
+
+    // Refers to the "importee", which is vimeo-embed.html
+    var thisDoc = (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+
+    // Gets content from <template>.
+    var template = thisDoc.querySelector( 'template' ).content;
+
+    // Shim Shadow DOM styles if needed
+    if (window.ShadowDOMPolyfill) {
+        WebComponents.ShadowCSS.shimStyling(template, 'data-view');
+    }
+
+    class DataView extends HTMLElement {
+
+        constructor() {
+            super();
+        }
+
+        connectedCallback() {
+            var shadowRoot = this.attachShadow({mode:'open'});
+
+            // Adds a template clone into shadow root.
+            var clone = thatDoc.importNode( template, true );
+            shadowRoot.appendChild(clone);
+
+            // get the value of the "embed" attribute
+            var value = this.getAttribute("data-value");
+            var type  = this.getAttribute("data-type");
+            var literalType  = this.getAttribute("data-literal-type");
+            var lang = this.getAttribute("data-lang");
+            var click  = this.getAttribute("data-click");
+
+            var element;
+            switch (type) {
+              case "literal":
+                element = document.createElement("span");
+                element.innerText = (lang ? (lang + ":") : "" ) + value;
+                break;
+              case "uri":
+                element = document.createElement("a");
+                element.className = "link"
+                element.innerText = value;
+                element.setAttribute("href", "#/?subject="+value)
+                break;
+              case "bnode":
+                element = document.createElement("span");
+                element.innerText = value;
+                break;
+              default:
+                element = document.createElement("span");
+                element.innerText = value;
+            }
+
+            shadowRoot.querySelector(".data-view").appendChild(element);
+        }
+    }
+
+    window.customElements.define('data-view', DataView);
+})(window, document);
+</script>

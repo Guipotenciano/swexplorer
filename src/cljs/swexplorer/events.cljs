@@ -13,11 +13,6 @@
    (assoc-in db [:endpoints] (merge (-> db (:endpoints)) result))))
 
 (re-frame/reg-event-db
- ::loading
- (fn [db [_ result]]
-   (assoc-in db [:interface :loading :display] result)))
-
-(re-frame/reg-event-db
   ::prefixes
   (fn [db [_ result]]
     (assoc-in db [:prefixes] result)))
@@ -28,21 +23,16 @@
     (assoc-in db [:interface :toolbar :ipt-search] result)))
 
 (re-frame/reg-event-db
-  ::history-index
+  ::query
   (fn [db [_ result]]
-      (assoc-in db [:history :index] result)))
-
-(re-frame/reg-event-db
-  ::add-history
-  (fn [db [_ result]]
-    (assoc-in db [:history] {:index (-> db (:history) (:index) (inc)) :queries (merge (-> db (:history) (:queries)) result)})))
-
-(re-frame/reg-event-db
-  ::clear-history
-  (fn [db [_ result]]
-      (assoc-in db [:history ] result)))
+      (assoc-in db [:query] result)))
 
 (re-frame/reg-event-db
   ::query-result
   (fn [db [_ result]]
     (assoc-in db [:query-result] result)))
+
+(re-frame/reg-event-db
+ ::set-active-panel
+ (fn [db [_ active-panel]]
+   (assoc db :active-panel active-panel)))

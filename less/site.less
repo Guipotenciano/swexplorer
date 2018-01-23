@@ -4,68 +4,79 @@ body {
     color: red;
     margin: 0px;
     background-color: @clr-grey-800;
-}
 
-#toolbar {
-    position: fixed;
-    top: 0px;
-    width: 100%;
+    #toolbar {
+        position: fixed;
+        top: 0px;
+        width: 100%;
+        background-color: #fafafa;
 
-    #ipt-search{
-      margin: 0px 10px;
+        #ipt-search {
+          width: calc(~"100% - 45px");
+          font: 16px arial,sans-serif;
+          border: none;
+          line-height: 34px;
+        }
+
+        #btn-search {
+          border: none;
+          background: none;
+          position: relative;
+          top: 5px;
+          float: right;
+
+          &:hover {
+            cursor: pointer;
+          }
+        }
     }
 
-    #search{
-      margin: 0px 20px;
-    }
+    #properties-table{
+      padding-top: 70px;
 
-}
-
-#properties-table{
-  padding-top: 56px;
-
-  .head {
-    background-color: @clr-blue-800;
-    color: @clr-green-400;
-    font-size: 1.2rem;
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
-
-  .body {
-    color: @clr-green-500;
-    .hidden{
-      visibility: hidden;
-    }
-    .line {
-      padding: 10px;
-
-      &.first {
-          margin-top: 10px;
+      .head {
+        background-color: @clr-blue-800;
+        color: @clr-green-400;
+        font-size: 1.2rem;
+        padding-top: 10px;
+        padding-bottom: 10px;
       }
-      &.predicate {
-        background-color: @clr-grey-600;
-        &.first{
-          background-color: @clr-grey-700;
+
+      .body {
+        color: @clr-green-500;
+        .hidden{
+          visibility: hidden;
+        }
+        .line {
+          padding: 10px;
+
+          &.first {
+              margin-top: 10px;
+          }
+          &.predicate {
+            background-color: @clr-grey-600;
+            &.first{
+              background-color: @clr-grey-700;
+            }
+          }
+
+          &.object {
+            background-color: @clr-blue-grey-600;
+            &.first{
+              background-color: @clr-blue-grey-700;
+            }
+          }
+          & img {
+            max-height: 400px;
+            max-width: 100%;
+          }
+          & .link:hover{
+            cursor: pointer;
+            color: @clr-blue-400;
+          }
         }
       }
-
-      &.object {
-        background-color: @clr-blue-grey-600;
-        &.first{
-          background-color: @clr-blue-grey-700;
-        }
-      }
-      & > img {
-        max-height: 400px;
-        max-height: 400px;
-      }
-      & > .link:hover{
-        cursor: pointer;
-        color: @clr-blue-400;
-      }
     }
-
-
-  }
 }
+
+/* Components */
