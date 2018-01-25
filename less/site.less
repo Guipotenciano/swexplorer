@@ -1,15 +1,22 @@
 @import "material-color";
 
 body {
-    color: red;
     margin: 0px;
-    background-color: @clr-grey-800;
+    background-color: @clr-grey-50;
 
     #toolbar {
+      /*
         position: fixed;
         top: 0px;
-        width: 100%;
-        background-color: #fafafa;
+        width: 100%; */
+        border-bottom: 1px solid @clr-grey-500;
+
+        #bar-search {
+          padding: 5px 9px;
+          width: 50%;
+          margin-top: 10px;
+          background-color: @clr-grey-50;
+        }
 
         #ipt-search {
           width: calc(~"100% - 45px");
@@ -32,18 +39,19 @@ body {
     }
 
     #properties-table{
-      padding-top: 70px;
+      padding-top: 62px;
 
       .head {
-        background-color: @clr-blue-800;
-        color: @clr-green-400;
+        background-color: @clr-grey-400;
+        color: @clr-blue-grey-900;
         font-size: 1.2rem;
         padding-top: 10px;
         padding-bottom: 10px;
       }
 
       .body {
-        color: @clr-green-500;
+        padding-top: 10px;
+        color: @clr-grey-900;
         .hidden{
           visibility: hidden;
         }
@@ -54,16 +62,16 @@ body {
               margin-top: 10px;
           }
           &.predicate {
-            background-color: @clr-grey-600;
+            background-color: @clr-grey-300;
             &.first{
-              background-color: @clr-grey-700;
+              background-color: @clr-grey-400;
             }
           }
 
           &.object {
-            background-color: @clr-blue-grey-600;
+            background-color: @clr-blue-grey-100;
             &.first{
-              background-color: @clr-blue-grey-700;
+              background-color: @clr-blue-grey-300;
             }
           }
           & img {

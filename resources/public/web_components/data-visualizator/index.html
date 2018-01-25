@@ -1,9 +1,15 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <!-- Defines element markup -->
 <template>
     <style>
         .data-view{
           max-height: 100px;
-          width: 100%;
+          width: auto;
+        }
+        .badge-icon {
+          width: auto;
+          max-width: 100px;
+          margin-right: 10px;
         }
     </style>
     <div class="data-view">
@@ -50,14 +56,34 @@
             var element;
             switch (type) {
               case "literal":
-                element = document.createElement("span");
-                element.innerText = (lang ? (lang + ":") : "" ) + value;
+                element = document.createElement("div");
+                let text = document.createElement("span");
+                text.innerText = value;
+                if(lang){
+                  let badge = document.createElement("span");
+                  badge.className = "badge badge-pill badge-primary badge-icon";
+                  badge.innerText =  lang;
+                  element.appendChild(badge);
+                }
+                element.appendChild(text);
                 break;
               case "uri":
-                element = document.createElement("a");
-                element.className = "link"
-                element.innerText = value;
-                element.setAttribute("href", "#/?subject="+value)
+                element = document.createElement("div");
+                element.className = "";
+
+                let sweLink = document.createElement("a");
+                sweLink.className = "link"
+                sweLink.innerText = value;
+                sweLink.setAttribute("href", "#/?subject="+value);
+                element.appendChild(sweLink);
+
+                let wwwLink = document.createElement("i");
+                wwwLink.className = "material-icons link";
+                wwwLink.innerText = "link";
+                wwwLink.addEventListener("click", function(){
+                  window.open(value, "_blank");
+                });
+                element.appendChild(wwwLink);
                 break;
               case "bnode":
                 element = document.createElement("span");

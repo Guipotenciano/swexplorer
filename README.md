@@ -85,10 +85,6 @@ An RDF term (IRI, literal or blank node) is encoded as a JSON object. All aspect
 
 The blank node label is scoped to the results object. That is, two blank nodes with the same label in a single SPARQL Results JSON object are the same blank node. This is not an indication of any internal system identifier the SPARQL processor may use. Use of the same label in another SPARQL Results JSON object does not imply it is the same blank node.
 
-## RE-FRAME
-
-A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.
-
 ## Development Mode
 
 ### Compile css:

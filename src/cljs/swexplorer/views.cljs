@@ -1,13 +1,10 @@
 (ns swexplorer.views
   (:require [re-frame.core :as re-frame]
+            [swexplorer.mdcr :as mdcr]
             [cljs.pprint :refer [pprint] :as pprint]
             [swexplorer.subs :as subs]
             [swexplorer.events :as events]
-            [cljsjs.material-ui]
-            [cljs-react-material-ui.core :refer [get-mui-theme color]]
-            [cljs-react-material-ui.reagent :as ui]
-            [cljs-react-material-ui.icons :as ic]
-            [reagent.core :as r]
+            [reagent.core :as reagent]
             [ajax.core :as ajax]
             [ajax.util :as ajax-util]))
 
@@ -60,7 +57,7 @@
                                                     (nth it 1) )]
                                         [key , (if (nil? val) "" val)] ))
                                    (:attributes component)) )]
-    [:div {:class (str "col-lg-6 line " class (if first " first"))}
+    [:div {:class (str "mdc-layout-grid__cell mdc-layout-grid__cell--span-6 line " class (if first " first"))}
       [(if (nil? (:component component)) :div (:component component)) (if (empty? component-attrs) value component-attrs) ]] ))
 
 (defn loading []
@@ -81,7 +78,7 @@
         :top "calc(50% - 25px)"
         :left "calc(50% - 25px)"
       }}
-      [ui/refresh-indicator {
+      #_[ui/refresh-indicator {
         :size 50
         :status "loading"
         :top 0
@@ -91,7 +88,41 @@
   (let [result (re-frame/subscribe [::subs/query-result])]
       (if-not (nil? @result)
               [:div {
-                :id    "properties-table"}
+                :id  "properties-table"}
+                [:div {
+                  :class "head mdc-layout-grid"}
+                  [:div {:class "mdc-layout-grid__inner"}
+                    (map-indexed (fn [idx itm] [:div {:class "mdc-layout-grid__cell mdc-layout-grid__cell--span-6" :key (str idx)} (clojure.string/upper-case itm)] ) (:vars (:head @result)))] ]
+                [:div {
+                  :class "body mdc-layout-grid"}
+                  (if (> (count (:bindings (:results @result))) 0)
+                      (let [last-predicate (atom "")]
+                        (map-indexed
+                          (fn [idx itm]
+                            (let [predicate (:predicate itm)
+                                  object (:object itm)
+                                  same-pred (= (:value predicate) @last-predicate)]
+                              [:div {:class "mdc-layout-grid__inner" :key (str idx)}
+                                (if-not same-pred
+                                  (do
+                                    (reset! last-predicate (:value predicate))
+                                    [wrapper-value predicate (if same-pred false true) "predicate"])
+                                  (do
+                                    [wrapper-value {:value ""} (if same-pred false true) "predicate"]) )
+
+                                [wrapper-value object (if same-pred false true) "object"] ]
+
+                            )) (:bindings (:results @result))))
+                      [:div {:class "mdc-layout-grid__inner"}
+                        [:div {:class "mdc-layout-grid__cell mdc-layout-grid__cell--span-12"}
+                          "Nenhum resultado encontrado"]])] ]
+                [loading]) ))
+
+#_(defn show-properties []
+  (let [result (re-frame/subscribe [::subs/query-result])]
+      (if-not (nil? @result)
+              [:div {
+                :id  "properties-table"}
                 [:div {
                   :class "head container-fluid"}
                   [:div {:class "row"}
@@ -122,22 +153,27 @@
                 [loading]) ))
 
 (defn toolbar []
-  (let [ipt-search (re-frame/subscribe [::subs/ipt-search])]
-    (fn []
+  [mdcr/wrapper "toolbar"
+    (let [ipt-search (re-frame/subscribe [::subs/ipt-search])]
       [:div {:id "toolbar"}
-       [ui/toolbar {:style {:height "70px"}}
-        [ui/toolbar-group {:style {:width "650px"}}
-          [ui/paper {:style {:padding "5px 9px" :width "100%"}}
-            [:form {:method "get" :action (str "#/?subject=" @ipt-search)}
-              [:input {
-                :id "ipt-search"
-                :value (if (nil? @ipt-search) "" @ipt-search )
-                :on-change #(re-frame/dispatch [::events/ipt-search (-> % .-target .-value)])
-                }]
-              [:button {:id "btn-search" :type "submit"} (ic/action-search #_{:color (color :green500)})]]
+        [:header.mdc-toolbar.mdc-toolbar--fixed
+          [:div.mdc-toolbar__row
+            [:section.mdc-toolbar__section
+              [:div.mdc-elevation--z1 {:id "bar-search"}
+                [:form {:method "get" :action (str "#/?subject=" @ipt-search)}
+                  [:input {
+                    :id "ipt-search"
+                    :value (if (nil? @ipt-search) "" @ipt-search )
+                    :on-change #(re-frame/dispatch [::events/ipt-search (-> % .-target .-value)])
+                    }]
+                  [:button {
+                    :class ""
+                    :id "btn-search"
+                    :type "submit"}
+                    [:i.material-icons "search"] ]]
 
-          ]]]]
-      )))
+              ]]
+          ]]])])
 
 (defn home-panel []
   (let [query (re-frame/subscribe [::subs/query])
@@ -146,17 +182,14 @@
     (if-not (nil? (:subject @query))
             (do (re-frame/dispatch [::events/ipt-search (:subject @query)])
                 (create-query @query))
+            ;; TODO pass others configs in get request
             ;;If dont have subject, create query with default subject (if have one)
             (if-not (empty? @duri) (set! js/window.location.href (str "#/?subject=" @duri))) )
-    [ui/mui-theme-provider {
-      :mui-theme (get-mui-theme {
-        :palette {
-          :text-color (color :blue600)}})}
       [:div
         ;;Toolbar
         [toolbar]
         ;;Table
-        [show-properties] ]]))
+        [show-properties] ]))
 
 ;;remover
 (defn about-panel []

@@ -3,7 +3,6 @@
                  [org.clojure/clojurescript "1.9.946"]
                  [reagent "0.7.0"]
                  [re-frame "0.10.2"]
-                 [cljs-react-material-ui "0.2.50"]
                  [cljsjs/react "16.2.0-0"]
                  [cljsjs/react-dom "16.1.1-0"]
                  [cljs-ajax "0.7.3"]
