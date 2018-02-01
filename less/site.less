@@ -52,6 +52,12 @@ body {
       .body {
         padding-top: 10px;
         color: @clr-grey-900;
+        .striped {
+          background-color: @clr-blue-grey-100;
+        }
+        ul {
+          list-style-type: none;
+        }
         .hidden{
           visibility: hidden;
         }
@@ -70,9 +76,9 @@ body {
 
           &.object {
             background-color: @clr-blue-grey-100;
-            &.first{
+            /* &.first{
               background-color: @clr-blue-grey-300;
-            }
+            } */
           }
           & img {
             max-height: 400px;

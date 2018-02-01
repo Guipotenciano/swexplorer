@@ -45,6 +45,12 @@ body #properties-table .body {
   padding-top: 10px;
   color: #212121;
 }
+body #properties-table .body .striped {
+  background-color: #cfd8dc;
+}
+body #properties-table .body ul {
+  list-style-type: none;
+}
 body #properties-table .body .hidden {
   visibility: hidden;
 }
@@ -62,9 +68,9 @@ body #properties-table .body .line.predicate.first {
 }
 body #properties-table .body .line.object {
   background-color: #cfd8dc;
-}
-body #properties-table .body .line.object.first {
-  background-color: #90a4ae;
+  /* &.first{
+              background-color: @clr-blue-grey-300;
+            } */
 }
 body #properties-table .body .line img {
   max-height: 400px;

@@ -3,6 +3,14 @@
 SWExplorer is a semantic web browser developed using Clojure/ClojureScript.
 
 ## Under Development
+### TODO
+-> Filter results by language
+
+-> Make new css for table
+
+-> Make better Sparql Query to show data provenence
+
+-> 
 
 ## How execute
 Download project folder

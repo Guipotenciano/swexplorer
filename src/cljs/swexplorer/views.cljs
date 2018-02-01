@@ -42,10 +42,10 @@
         services (clojure.string/join " "
                         (map (fn [itm] (str " UNION { SERVICE <" itm "> { " triple "} }")) (subvec @(re-frame/subscribe [::subs/endpoints]) 1))) ]
     (execute-query
-      (str prefixes " SELECT DISTINCT ?predicate ?object WHERE { {" triple "} " services " } LIMIT 1000" )) ))
+      (str prefixes " SELECT DISTINCT ?predicate ?object WHERE { {" triple "} " services " } ORDER BY ASC(?predicate) LIMIT 1000" )) ))
 
 
-(defn wrapper-value [cell first class]
+#_(defn wrapper-value [cell first class]
   (let [value (:value cell)
         type (:type cell)
         component @(re-frame/subscribe [::subs/web-component type])
@@ -59,6 +59,21 @@
                                    (:attributes component)) )]
     [:div {:class (str "mdc-layout-grid__cell mdc-layout-grid__cell--span-6 line " class (if first " first"))}
       [(if (nil? (:component component)) :div (:component component)) (if (empty? component-attrs) value component-attrs) ]] ))
+
+
+(defn wrapper-value [cell cpm-key]
+  (let [value (:value cell)
+        type (:type cell)
+        component @(re-frame/subscribe [::subs/web-component type])
+        component-attrs (into (hash-map)
+                              (map (fn [it]
+                                      (let [key (nth it 0)
+                                            val (if (keyword? (nth it 1))
+                                                    ((nth it 1) cell)
+                                                    (nth it 1) )]
+                                        [key , (if (nil? val) "" val)] ))
+                                   (:attributes component)) )]
+      [(if (nil? (:component component)) :div (:component component)) (-> (if (empty? component-attrs) value (conj {:key cpm-key} component-attrs)) ) ] ))
 
 (defn loading []
   [:div {
@@ -96,23 +111,47 @@
                 [:div {
                   :class "body mdc-layout-grid"}
                   (if (> (count (:bindings (:results @result))) 0)
-                      (let [last-predicate (atom "")]
-                        (map-indexed
-                          (fn [idx itm]
-                            (let [predicate (:predicate itm)
-                                  object (:object itm)
-                                  same-pred (= (:value predicate) @last-predicate)]
-                              [:div {:class "mdc-layout-grid__inner" :key (str idx)}
-                                (if-not same-pred
-                                  (do
-                                    (reset! last-predicate (:value predicate))
-                                    [wrapper-value predicate (if same-pred false true) "predicate"])
-                                  (do
-                                    [wrapper-value {:value ""} (if same-pred false true) "predicate"]) )
-
-                                [wrapper-value object (if same-pred false true) "object"] ]
-
-                            )) (:bindings (:results @result))))
+                      ;;In loop 0 last-(predicate/object) starts with the first result
+                      (let [last-predicate (atom (:predicate (nth (:bindings (:results @result)) 0)))
+                            last-object    (atom (:object (nth (:bindings (:results @result)) 0)))
+                            objects        (atom [:ul])
+                            lines          (atom [])
+                            striped        (atom false)]
+                        ;;Run a loop over result vector
+                        (dotimes [idx (count (:bindings (:results @result)))]
+                          (let [itm (nth (:bindings (:results @result)) idx)
+                                predicate (:predicate itm)
+                                object (:object itm)
+                                same-pred (= (:value predicate) (:value @last-predicate))]
+                            (js/console.log (str (:value @last-predicate) " " (:value predicate)))
+;;                           v2
+;;                          (if (last-predicate != actual-predicate)
+;;                              (:then
+;;                                (if (empty? @objects)
+;;                                    (create a vetor of objects with one value))
+;;                                (create a layout-grid and put @last-predicate ))
+;;                              (:else ))
+                            (if-not same-pred
+                              (do
+                                (if (= [:ul] @objects)
+                                    (reset! objects [:ul [:li {:key (str "li-" idx)} (wrapper-value @last-object (str (:type @last-object) "-" idx))]]) )
+                                (reset! lines
+                                  (conj @lines
+                                    [:div {:class (str "mdc-layout-grid__inner " (if @striped "striped" "") ) :key (str idx)}
+                                      [:div {:class "mdc-layout-grid__cell--span-6"}
+                                        (wrapper-value @last-predicate (str (:type @last-predicate) "-" idx))]
+                                      [:div {:class "mdc-layout-grid__cell--span-6"}
+                                         @objects]]))
+                                (reset! striped (if @striped false true))
+                                (reset! last-predicate predicate)
+                                (reset! last-object object)
+                                (reset! objects [:ul]) )
+                              (do
+                                (reset! objects (conj @objects [:li {:key (str "li-" idx)} (wrapper-value object (str (:type object) "-" idx))]))  ))
+                            ))
+                          (js/console.log (str @lines))
+                          [:div {:class "div"} (map (fn [itm] itm) @lines)]
+                      )
                       [:div {:class "mdc-layout-grid__inner"}
                         [:div {:class "mdc-layout-grid__cell mdc-layout-grid__cell--span-12"}
                           "Nenhum resultado encontrado"]])] ]
