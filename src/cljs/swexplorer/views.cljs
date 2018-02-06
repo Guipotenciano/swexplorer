@@ -38,27 +38,11 @@
   ;;endpoints are used to make federated queries
   (let [prefixes (clojure.string/join " "
                     (map (fn [itm] (str "PREFIX " (get itm 0) ":<" (get itm 1) ">")) @(re-frame/subscribe [::subs/prefixes])))
-        triple (str "<" (:subject query) "> ?predicate ?object .")
+        triple (str "<" (:entity query) "> ?predicate ?object .")
         services (clojure.string/join " "
                         (map (fn [itm] (str " UNION { SERVICE <" itm "> { " triple "} }")) (subvec @(re-frame/subscribe [::subs/endpoints]) 1))) ]
     (execute-query
       (str prefixes " SELECT DISTINCT ?predicate ?object WHERE { {" triple "} " services " } ORDER BY ASC(?predicate) LIMIT 1000" )) ))
-
-
-#_(defn wrapper-value [cell first class]
-  (let [value (:value cell)
-        type (:type cell)
-        component @(re-frame/subscribe [::subs/web-component type])
-        component-attrs (into (hash-map)
-                              (map (fn [it]
-                                      (let [key (nth it 0)
-                                            val (if (keyword? (nth it 1))
-                                                    ((nth it 1) cell)
-                                                    (nth it 1) )]
-                                        [key , (if (nil? val) "" val)] ))
-                                   (:attributes component)) )]
-    [:div {:class (str "mdc-layout-grid__cell mdc-layout-grid__cell--span-6 line " class (if first " first"))}
-      [(if (nil? (:component component)) :div (:component component)) (if (empty? component-attrs) value component-attrs) ]] ))
 
 
 (defn wrapper-value [cell cpm-key]
@@ -123,7 +107,7 @@
                                 predicate (:predicate itm)
                                 object (:object itm)
                                 same-pred (= (:value predicate) (:value @last-predicate))]
-                            (js/console.log (str (:value @last-predicate) " " (:value predicate)))
+                            #_(js/console.log (str (:value @last-predicate) " " (:value predicate)))
 ;;                           v2
 ;;                          (if (last-predicate != actual-predicate)
 ;;                              (:then
@@ -149,7 +133,7 @@
                               (do
                                 (reset! objects (conj @objects [:li {:key (str "li-" idx)} (wrapper-value object (str (:type object) "-" idx))]))  ))
                             ))
-                          (js/console.log (str @lines))
+                          #_(js/console.log (str @lines))
                           [:div {:class "div"} (map (fn [itm] itm) @lines)]
                       )
                       [:div {:class "mdc-layout-grid__inner"}
@@ -199,7 +183,7 @@
           [:div.mdc-toolbar__row
             [:section.mdc-toolbar__section
               [:div.mdc-elevation--z1 {:id "bar-search"}
-                [:form {:method "get" :action (str "#/?subject=" @ipt-search)}
+                [:form {:method "get" :action (str "#/?entity=" @ipt-search)}
                   [:input {
                     :id "ipt-search"
                     :value (if (nil? @ipt-search) "" @ipt-search )
@@ -218,12 +202,12 @@
   (let [query (re-frame/subscribe [::subs/query])
         duri  (re-frame/subscribe [::subs/default-uri])]
     ;;After panel is loaded, query is created with get params
-    (if-not (nil? (:subject @query))
-            (do (re-frame/dispatch [::events/ipt-search (:subject @query)])
+    (if-not (nil? (:entity @query))
+            (do (re-frame/dispatch [::events/ipt-search (:entity @query)])
                 (create-query @query))
             ;; TODO pass others configs in get request
             ;;If dont have subject, create query with default subject (if have one)
-            (if-not (empty? @duri) (set! js/window.location.href (str "#/?subject=" @duri))) )
+            (if-not (empty? @duri) (set! js/window.location.href (str "#/?entity=" @duri))) )
       [:div
         ;;Toolbar
         [toolbar]

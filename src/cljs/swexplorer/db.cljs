@@ -52,6 +52,7 @@
   :prefixes [
     ["wd" "http://www.wikidata.org/entity/"]
     ["wdt" "http://www.wikidata.org/prop/direct/"]]
+  :langs ["pt" "pt-br" "en" "es"]
   :default-uri "http://www.wikidata.org/entity/Q5"
   :web-components [
     {:type "uri"

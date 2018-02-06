@@ -23,6 +23,7 @@
   (defroute "/" [query-params]
     (re-frame/dispatch
       [::events/query {
+        :entity     (:entity query-params)
         :subject    (:subject query-params)
         :predicate  (:predicate query-params)
         :object     (:object query-params)}])

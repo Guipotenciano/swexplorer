@@ -6,6 +6,11 @@
           max-height: 100px;
           width: auto;
         }
+        .link{
+          cursor: pointer;
+          position: relative;
+          top: 5px;
+        }
         .badge-icon {
           width: auto;
           max-width: 100px;
@@ -74,7 +79,7 @@
                 let sweLink = document.createElement("a");
                 sweLink.className = "link"
                 sweLink.innerText = value;
-                sweLink.setAttribute("href", "#/?subject="+value);
+                sweLink.setAttribute("href", "#/?entity="+value);
                 element.appendChild(sweLink);
 
                 let wwwLink = document.createElement("i");

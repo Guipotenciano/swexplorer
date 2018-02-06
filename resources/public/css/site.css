@@ -17,6 +17,8 @@ body #toolbar #bar-search {
 }
 body #toolbar #ipt-search {
   width: calc(100% - 45px);
+  background-color: #ffffff;
+  color: #424242;
   font: 16px arial, sans-serif;
   border: none;
   line-height: 34px;
@@ -24,6 +26,7 @@ body #toolbar #ipt-search {
 body #toolbar #btn-search {
   border: none;
   background: none;
+  color: #424242;
   position: relative;
   top: 5px;
   float: right;
@@ -50,6 +53,9 @@ body #properties-table .body .striped {
 }
 body #properties-table .body ul {
   list-style-type: none;
+  padding: 0px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 body #properties-table .body .hidden {
   visibility: hidden;
