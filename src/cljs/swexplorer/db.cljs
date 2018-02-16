@@ -48,7 +48,7 @@
 
 (def default-db {
   :name "re-frame"
-  :endpoints [#_"http://java.icmc.usp.br:2372/repositories/Gazetteer" "http://java.icmc.usp.br:2472/repositories/Politics" "https://query.wikidata.org/sparql" "https://dbpedia.org/sparql"]
+  :endpoints [#_"http://java.icmc.usp.br:2372/repositories/Gazetteer" "http://java.icmc.usp.br:2472/repositories/Politics" #_"https://query.wikidata.org/sparql" #_"https://dbpedia.org/sparql"]
   :prefixes [
     ["wd" "http://www.wikidata.org/entity/"]
     ["wdt" "http://www.wikidata.org/prop/direct/"]]

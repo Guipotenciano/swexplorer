@@ -1,16 +1,9 @@
 @import "material-color";
 
 body {
-    margin: 0px;
     background-color: @clr-grey-50;
 
     #toolbar {
-      /*
-        position: fixed;
-        top: 0px;
-        width: 100%; */
-        border-bottom: 1px solid @clr-grey-500;
-
         #bar-search {
           padding: 5px 9px;
           width: 50%;
@@ -42,19 +35,27 @@ body {
     }
 
     #properties-table{
-      padding-top: 62px;
 
       .head {
-        background-color: @clr-grey-400;
+        /*background-color: @clr-grey-400;*/
         color: @clr-blue-grey-900;
+        text-align: center;
         font-size: 1.2rem;
         padding-top: 10px;
         padding-bottom: 10px;
+
+        .mdc-layout-grid__inner{
+          background-color: @clr-grey-400;
+        }
       }
 
       .body {
         padding-top: 10px;
         color: @clr-grey-900;
+
+        .inner-div{
+          background-color: @clr-grey-100;
+        }
         .striped {
           background-color: @clr-blue-grey-100;
         }

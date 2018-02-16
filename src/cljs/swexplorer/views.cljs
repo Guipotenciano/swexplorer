@@ -32,7 +32,7 @@
     :error-handler #(js/console.log %)})) )
 
 
-(defn create-query [query]
+#_(defn create-query [query]
   ;;force clean results
   (re-frame/dispatch [::events/query-result nil])
   ;;endpoints are used to make federated queries
@@ -43,6 +43,20 @@
                         (map (fn [itm] (str " UNION { SERVICE <" itm "> { " triple "} }")) (subvec @(re-frame/subscribe [::subs/endpoints]) 1))) ]
     (execute-query
       (str prefixes " SELECT DISTINCT ?predicate ?object WHERE { {" triple "} " services " } ORDER BY ASC(?predicate) LIMIT 1000" )) ))
+
+
+(defn create-query [query]
+  ;;force clean results
+  (re-frame/dispatch [::events/query-result nil])
+  ;;endpoints are used to make federated queries
+  (let [prefixes (clojure.string/join " "
+                    (map (fn [itm] (str "PREFIX " (get itm 0) ":<" (get itm 1) ">")) @(re-frame/subscribe [::subs/prefixes])))
+        sub-triple (str "<" (:entity query) "> ?property ?value .")
+        obj-triple (str "?value ?property <" (:entity query) "> ." )
+        services (clojure.string/join " "
+                        (map (fn [itm] (str " UNION { SERVICE <" itm "> { {" sub-triple " BIND (\"sub\" AS ?func) } UNION {" obj-triple " BIND (\"obj\" AS ?func) }} }")) (subvec @(re-frame/subscribe [::subs/endpoints]) 1))) ]
+    (execute-query
+      (str prefixes " SELECT DISTINCT ?property ?value ?func WHERE { {{" sub-triple " BIND (\"sub\" AS ?func)} UNION {" obj-triple " BIND (\"obj\" AS ?func)}} " services " } ORDER BY ASC(?property) LIMIT 10000" )) ))
 
 
 (defn wrapper-value [cell cpm-key]
@@ -57,7 +71,7 @@
                                                     (nth it 1) )]
                                         [key , (if (nil? val) "" val)] ))
                                    (:attributes component)) )]
-      [(if (nil? (:component component)) :div (:component component)) (-> (if (empty? component-attrs) value (conj {:key cpm-key} component-attrs)) ) ] ))
+      [(if (nil? (:component component)) :div (:component component)) (-> (if (empty? component-attrs) value (conj {:key cpm-key :style {:display "inline-block"}} component-attrs)) ) ] ))
 
 (defn loading []
   [:div {
@@ -86,117 +100,109 @@
 (defn show-properties []
   (let [result (re-frame/subscribe [::subs/query-result])]
       (if-not (nil? @result)
-              [:div {
+              [:div.mdc-toolbar-fixed-adjust {
                 :id  "properties-table"}
                 [:div {
                   :class "head mdc-layout-grid"}
-                  [:div {:class "mdc-layout-grid__inner"}
-                    (map-indexed (fn [idx itm] [:div {:class "mdc-layout-grid__cell mdc-layout-grid__cell--span-6" :key (str idx)} (clojure.string/upper-case itm)] ) (:vars (:head @result)))] ]
+                  [:div {:class "mdc-layout-grid__inner mdc-elevation--z1"}
+                    [:div {:class "mdc-layout-grid__cell mdc-layout-grid__cell--span-6" :key "prop-head"} "Property"]
+                    [:div {:class "mdc-layout-grid__cell mdc-layout-grid__cell--span-6" :key "value-head"} "Value"] ]]
                 [:div {
                   :class "body mdc-layout-grid"}
                   (if (> (count (:bindings (:results @result))) 0)
                       ;;In loop 0 last-(predicate/object) starts with the first result
-                      (let [last-predicate (atom (:predicate (nth (:bindings (:results @result)) 0)))
-                            last-object    (atom (:object (nth (:bindings (:results @result)) 0)))
-                            objects        (atom [:ul])
+                      (let [last-property (atom (:property (nth (:bindings (:results @result)) 0)))
+                            last-value    (atom (:value (nth (:bindings (:results @result)) 0)))
+                            last-func     (atom (:func (nth (:bindings (:results @result)) 0)))
+                            values        (atom [:ul])
                             lines          (atom [])
                             striped        (atom false)]
                         ;;Run a loop over result vector
                         (dotimes [idx (count (:bindings (:results @result)))]
                           (let [itm (nth (:bindings (:results @result)) idx)
-                                predicate (:predicate itm)
-                                object (:object itm)
-                                same-pred (= (:value predicate) (:value @last-predicate))]
-                            #_(js/console.log (str (:value @last-predicate) " " (:value predicate)))
-;;                           v2
-;;                          (if (last-predicate != actual-predicate)
-;;                              (:then
-;;                                (if (empty? @objects)
-;;                                    (create a vetor of objects with one value))
-;;                                (create a layout-grid and put @last-predicate ))
-;;                              (:else ))
-                            (if-not same-pred
+                                property (:property itm)
+                                value (:value itm)
+                                func  (:func itm)
+                                same-prop (= (:value property) (:value @last-property))]
+
+                            (if-not same-prop
                               (do
-                                (if (= [:ul] @objects)
-                                    (reset! objects [:ul [:li {:key (str "li-" idx)} (wrapper-value @last-object (str (:type @last-object) "-" idx))]]) )
+                                (if (= [:ul] @values)
+                                    (reset! values [:ul [:li {:key (str "li-" idx)} (wrapper-value @last-value (str (:type @last-value) "-" idx))]]) )
                                 (reset! lines
                                   (conj @lines
                                     [:div {:class (str "mdc-layout-grid__inner " (if @striped "striped" "") ) :key (str idx)}
+                                      [:div {:class "mdc-layout-grid__cell--span-6" :style {:display "inline-block"}}
+                                        [:div {:style {:display "inline-block" :padding "0 5px 0 5px"}} (if (= (:value @last-func) "obj") "Is object of : " "")
+                                          (wrapper-value @last-property (str (:type @last-property) "-" idx)) ]]
                                       [:div {:class "mdc-layout-grid__cell--span-6"}
-                                        (wrapper-value @last-predicate (str (:type @last-predicate) "-" idx))]
-                                      [:div {:class "mdc-layout-grid__cell--span-6"}
-                                         @objects]]))
+                                         @values]]))
                                 (reset! striped (if @striped false true))
-                                (reset! last-predicate predicate)
-                                (reset! last-object object)
-                                (reset! objects [:ul]) )
+                                (reset! last-property property)
+                                (reset! last-value value)
+                                (reset! last-func func)
+                                (reset! values [:ul]) )
                               (do
-                                (reset! objects (conj @objects [:li {:key (str "li-" idx)} (wrapper-value object (str (:type object) "-" idx))]))  ))
+                                (reset! values (conj @values [:li {:key (str "li-" idx)} (wrapper-value value (str (:type value) "-" idx))]))  ))
                             ))
-                          #_(js/console.log (str @lines))
-                          [:div {:class "div"} (map (fn [itm] itm) @lines)]
+                          [:div {:class "inner-div mdc-elevation--z1"} (map (fn [itm] itm) @lines)]
                       )
                       [:div {:class "mdc-layout-grid__inner"}
                         [:div {:class "mdc-layout-grid__cell mdc-layout-grid__cell--span-12"}
                           "Nenhum resultado encontrado"]])] ]
                 [loading]) ))
 
-#_(defn show-properties []
-  (let [result (re-frame/subscribe [::subs/query-result])]
-      (if-not (nil? @result)
-              [:div {
-                :id  "properties-table"}
-                [:div {
-                  :class "head container-fluid"}
-                  [:div {:class "row"}
-                    (map-indexed (fn [idx itm] [:div {:class "col-lg-6" :key (str idx)} (clojure.string/upper-case itm)] ) (:vars (:head @result)))] ]
-                [:div {
-                  :class "body container-fluid"}
-                  (if (> (count (:bindings (:results @result))) 0)
-                      (let [last-predicate (atom "")]
-                        (map-indexed
-                          (fn [idx itm]
-                            (let [predicate (:predicate itm)
-                                  object (:object itm)
-                                  same-pred (= (:value predicate) @last-predicate)]
-                              [:div {:class "row" :key (str idx)}
-                                (if-not same-pred
-                                  (do
-                                    (reset! last-predicate (:value predicate))
-                                    [wrapper-value predicate (if same-pred false true) "predicate"])
-                                  (do
-                                    [wrapper-value {:value ""} (if same-pred false true) "predicate"]) )
-
-                                [wrapper-value object (if same-pred false true) "object"] ]
-
-                            )) (:bindings (:results @result))))
-                      [:div {:class "row"}
-                        [:div {:class "col-xs-12"}
-                          "Nenhum resultado encontrado"]])] ]
-                [loading]) ))
 
 (defn toolbar []
-  [mdcr/wrapper "toolbar"
-    (let [ipt-search (re-frame/subscribe [::subs/ipt-search])]
-      [:div {:id "toolbar"}
-        [:header.mdc-toolbar.mdc-toolbar--fixed
-          [:div.mdc-toolbar__row
-            [:section.mdc-toolbar__section
-              [:div.mdc-elevation--z1 {:id "bar-search"}
-                [:form {:method "get" :action (str "#/?entity=" @ipt-search)}
-                  [:input {
-                    :id "ipt-search"
-                    :value (if (nil? @ipt-search) "" @ipt-search )
-                    :on-change #(re-frame/dispatch [::events/ipt-search (-> % .-target .-value)])
-                    }]
-                  [:button {
-                    :class ""
-                    :id "btn-search"
-                    :type "submit"}
-                    [:i.material-icons "search"] ]]
-
-              ]]
-          ]]])])
+  (reagent/create-class {
+    :component-did-mount
+      (fn [state]
+        (js/console.log "Mount: ""toolbar")
+        #_(let [menuEl (js/document.querySelector "#demo-menu")
+              menu (js/mdc.menu.MDCMenu. menuEl)
+              menuButtonEl  (js/document.querySelector "#menu-button")
+              corner (.-BOTTOM_START js/mdc.menu.MDCMenuFoundation.Corner)]
+              (.addEventListener menuButtonEl "click" (fn [] (set! (.-open menu) (if (.-open menu) false true))))
+              (.setAnchorCorner menu corner) ))
+    :component-will-mount #()
+    :display-name  "toolbar"
+    :reagent-render
+      (fn []
+        (let [ipt-search (re-frame/subscribe [::subs/ipt-search])]
+          [:div {:id "toolbar"}
+            [:header.mdc-toolbar.mdc-toolbar--fixed
+              [:div.mdc-toolbar__row
+                #_[:section.mdc-toolbar__section.mdc-toolbar__section--align-start.mdc-toolbar__section--shrink-to-fit.mdc-toolbar__menu-icon
+                  [:a.material-icons.align-icons {:arial "menu" :alt "menu" :onClick #(js/alert "haha")} "menu"]]
+                [:section.mdc-toolbar__section
+                  [:div.mdc-elevation--z1 {:id "bar-search"}
+                    [:form {:method "get" :action (str "#/?entity=" @ipt-search)}
+                      [:input {
+                        :id "ipt-search"
+                        :value (if (nil? @ipt-search) "" @ipt-search )
+                        :on-change #(re-frame/dispatch [::events/ipt-search (-> % .-target .-value)])
+                        }]
+                      [:button {
+                        :class ""
+                        :id "btn-search"
+                        :type "submit"}
+                        [:i.material-icons "search"] ]] ]]
+                #_[:section.mdc-toolbar__section.mdc-toolbar__section--align-end.mdc-toolbar__section--shrink-to-fit.mdc-menu-anchor
+                  [:a.material-icons.mdc-toolbar__icon.align-icons {
+                    :id "menu-button"}
+                    "more_vert"]
+                  [:div {
+                    :tabIndex "-1"
+                    :id "demo-menu"
+                    :class "mdc-menu"
+                    :style {:position "absolute"}}
+                    [:ul.mdc-menu__items.mdc-list {:role "menu" :aria-hidden "true"}
+                      [:li.mdc-list-item {:role "menuitem" :tabIndex "0"} "Endpoints" ]
+                      [:li.mdc-list-item {:role "menuitem" :tabIndex "0"} "Langs" ]
+                      [:li.mdc-list-item {:role "menuitem" :tabIndex "0"} "Web Components" ]
+                      ]]]
+              ]]])
+        ) }))
 
 (defn home-panel []
   (let [query (re-frame/subscribe [::subs/query])
